@@ -47,20 +47,18 @@ state_urate <- load_basic(2010:2025, year, age, unemp, statefips, lfstat, basicw
 
 
 #### Standard restrictions ####
-data <- bind_rows(load_org(2010:2025, all_of(c(var_list, "orgwgt")))) %>% 
+data <- load_org(2010:2025, all_of(c(var_list, "orgwgt"))) %>% 
   # Age and selfemp restrictions, remove imputed wages
   filter(
        selfemp == 0, age >= 18 & age <=64,
-       (a_weekpay != 1 | is.na(a_weekpay)), 
-       (a_earnhour != 1 | is.na(a_earnhour)),
          # remove self-incorporated workers
          #note: not available year < 1989
          case_when(selfinc == 0 & !is.na(selfinc) ~ TRUE,
                    # keep any year that doesn't have selfinc (selfinc is NA)
                    is.na(selfinc) ~ TRUE, 
                    # exclude all other cases
-                   TRUE ~ FALSE)
-              )
+                   TRUE ~ FALSE)) |> 
+  filter_out(a_earnhour == 1 & paidhre == 1 | a_weekpay == 1 & paidhre == 0)
 
 #### Master wage dataset ####
 wage_master <- data %>%
