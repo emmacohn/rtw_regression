@@ -1,8 +1,8 @@
-# this script runs 2024 data but with 2012 designations
+# this script runs 2025 data but with 2012 designations
 
 df_c <- df |> 
-  filter(year %in% c(2022:2024)) |> 
-# need to switch IN, WI, WV, MI, and KY to non-RTW in 2022-2024
+  filter(year %in% c(2023:2025)) |> 
+# need to switch IN, WI, WV, MI, and KY to non-RTW in 2023-2025
   mutate(rtw_status = case_when(
              statefips == "IN" ~ 0,
              statefips == "WI" ~ 0,

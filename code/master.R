@@ -30,10 +30,11 @@ bea_rpp <- read.csv("./input/bea_rpp_2.csv") |>
 cpi_data <- realtalk::c_cpi_u_annual
 cpi2014 <- cpi_data$c_cpi_u[cpi_data$year == 2014]
 cpi2024 <- cpi_data$c_cpi_u[cpi_data$year == 2024]
+cpi2025 <- cpi_data$c_cpi_u[cpi_data$year == 2025]
 
 
 ### DATA ####
-### create state unemp rates -- SHOULD I USE SAME PARAMETERS FOR AGE, ETC????
+### create state unemp rates
 state_urate <- load_basic(2010:2025, year, age, unemp, statefips, lfstat, basicwgt) |>  
   filter(age >= 16, lfstat != 3)  |>  
   mutate(adj_wgt = case_match(
@@ -79,6 +80,7 @@ wage_master <- data %>%
                 .default = orgwgt / 12),
          realwage14 = wage * (cpi2014 /c_cpi_u),
          realwage24 = wage * (cpi2024 /c_cpi_u),
+         realwage25 = wage * (cpi2025 /c_cpi_u),
          ft = ifelse(hoursu1i >= 35 | hoursuorg >= 35 & ftptstat == 2, 1, 0)
         ) |> 
    left_join(rtw_status_year, by = c("year", "statefips")) |> 
@@ -100,15 +102,15 @@ source("./code/a_old_reg.R", echo = TRUE)
 ## omitting switcher states
 source("./code/b_old_noswitch.R", echo = TRUE)
 
-### table 2 - 2024 data ###
+### table 2 - 2025 data ###
 ## 2012 rtw designations
 source("./code/c_new_2012.R", echo = TRUE)
 ## omitting switcher states
 source("./code/d_new_noswitch.R", echo = TRUE)
-## 2024 rtw designations
-source("./code/e_new_2024.R", echo = TRUE)
+## 2025 rtw designations
+source("./code/e_new_2025.R", echo = TRUE)
 
 
 wb$
   # save workbook to output folder
-  save("./output/rtw_reg.xlsx", overwrite = TRUE)
+  save("./output/rtw_reg25.xlsx", overwrite = TRUE)

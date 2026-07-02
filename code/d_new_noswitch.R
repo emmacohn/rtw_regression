@@ -1,6 +1,6 @@
-# this script removes the five switcher states entirely and runs the 2024 data
+# this script removes the five switcher states entirely and runs the 2025 data
 
-df_d <- df |> filter(year %in% c(2022:2024), !statefips %in% c("IN", "KY", "WI", "WV", "MI"))
+df_d <- df |> filter(year %in% c(2023:2025), !statefips %in% c("IN", "KY", "WI", "WV", "MI"))
 
 #############################
 ## MODEL 1 (no controls) ###
@@ -69,7 +69,7 @@ model4d_results <- broom::tidy(model4d) |>
 
 wb$
   # add new worksheet
-  add_worksheet(sheet = "noswitch_2024")$
+  add_worksheet(sheet = "noswitch_2025")$
   # add data to worksheet
   add_data(x = "model 1")$
   add_data(x = model1d_results, start_row = 2)$

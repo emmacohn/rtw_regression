@@ -1,5 +1,6 @@
-# this runs the regular model with 2024 data and states' status as of 2024
-df_e <- df |> filter(year %in% c(2022:2024))
+# this runs the regular model with 2025 data and states' status as of 2025
+## WHAT ABOUT MICHIGAN!!!!(non rtw as of feb 2024)
+df_e <- df |> filter(year %in% c(2023:2025))
 
 #############################
 ## MODEL 1 (no controls) ###
@@ -68,7 +69,7 @@ model4e_results <- broom::tidy(model4e) |>
 
 wb$
   # add new worksheet
-  add_worksheet(sheet = "new_2024")$
+  add_worksheet(sheet = "new_2025")$
   # add data to worksheet
   add_data(x = "model 1")$
   add_data(x = model1e_results, start_row = 2)$
