@@ -1,6 +1,10 @@
 # this runs the regular model with 2025 data and states' status as of 2025
-## WHAT ABOUT MICHIGAN!!!!(non rtw as of feb 2024)
-df_e <- df |> filter(year %in% c(2023:2025))
+## WHAT ABOUT MICHIGAN!!!!(non rtw as of feb 2024) (this makes it non RTW for all three years)
+df_e <- df |> filter(year %in% c(2023:2025))|> 
+  mutate(rtw_status = case_when(
+             statefips == "MI" ~ 0,
+             TRUE ~ rtw_status
+  ))
 
 #############################
 ## MODEL 1 (no controls) ###

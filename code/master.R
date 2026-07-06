@@ -21,7 +21,8 @@ rtw_status_year <- read.csv("./input/state_rtw_definitions.csv") |>
 #gould and kimball keep indiana as a non-rtw state
 rtw_status_year[1330, 3] <- 0
 
-bea_rpp <- read.csv("./input/bea_rpp_2.csv") |>
+#bea_rpp_3 replaces 2023 and 2024 data with an average of 2022-2024 data. it uses these averages for 2025 data. 
+bea_rpp <- read.csv("./input/bea_rpp_3.csv") |>
   pivot_longer(cols = -statefips, names_to = "year", names_prefix = "X", values_to = "rpp") |>
   mutate(year = as.integer(year)) |>
   arrange(statefips, year)
@@ -113,4 +114,4 @@ source("./code/e_new_2025.R", echo = TRUE)
 
 wb$
   # save workbook to output folder
-  save("./output/rtw_reg25.xlsx", overwrite = TRUE)
+  save("./output/rtw_reg3.xlsx", overwrite = TRUE)
