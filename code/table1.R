@@ -19,6 +19,7 @@ demos_a_fun <- function(x) {
 demos12 <- demos_a |> 
   summarize(age = weighted.mean(age, w = (wgt/3)),
             sex = 1-(weighted.mean(female, w= (wgt/3))), ## share male
+            married = weighted.mean(married, w = (wgt/3)),
             metstat = weighted.mean(metstat, w = (wgt/3)),
             paidhre = weighted.mean(paidhre, w = (wgt/3)),
             ft = weighted.mean(ft, w = (wgt/3)),
@@ -59,6 +60,7 @@ demos_b_fun <- function(x) {
 demos24 <- demos_b |> 
   summarize(age = weighted.mean(age, w = (wgt/3)),
             sex = 1-(weighted.mean(female, w= (wgt/3))), ## share male
+            married = weighted.mean(married, w = (wgt/3)),            
             metstat = weighted.mean(metstat, w = (wgt/3)),
             paidhre = weighted.mean(paidhre, w = (wgt/3)),
             ft = weighted.mean(ft, w = (wgt/3)),
@@ -98,6 +100,7 @@ demos_c_fun <- function(x) {
 demos25 <- demos_c |> 
   summarize(age = weighted.mean(age, w = (wgt/3)),
             sex = 1-(weighted.mean(female, w= (wgt/3))), ## share male
+            married = weighted.mean(married, w = (wgt/3)),
             metstat = weighted.mean(metstat, w = (wgt/3)),
             paidhre = weighted.mean(paidhre, w = (wgt/3)),
             ft = weighted.mean(ft, w = (wgt/3)),
@@ -137,6 +140,7 @@ demos_d_fun <- function(x) {
 demos_switch <- demos_d |> 
   summarize(age = weighted.mean(age, w = (wgt/3)),
             sex = 1-(weighted.mean(female, w= (wgt/3))), ## share male
+            married = weighted.mean(married, w = (wgt/3)),
             metstat = weighted.mean(metstat, w = (wgt/3)),
             paidhre = weighted.mean(paidhre, w = (wgt/3)),
             ft = weighted.mean(ft, w = (wgt/3)),
