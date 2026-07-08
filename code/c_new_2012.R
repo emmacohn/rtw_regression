@@ -31,7 +31,7 @@ regression_formula <- as.formula(paste(
 
 ### OUTPUT ####
 model1c <- df_c |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = "hetero"))()
 
 model1c_results <- broom::tidy(model1c) |>
   filter(term == "rtw_status::1") |>
@@ -41,9 +41,9 @@ model1c_results <- broom::tidy(model1c) |>
 ## MODEL 2 (demographic + indiv labor market controls) ###
 ##########################################################
 
-treatment_vars <- "i(rtw_status, ref = '0')"
+treatment_vars <- "i(rtw_status, ref = '0') + age + age2"
 
-fe_vars <- paste(c("year", "wbhao", "educ", "female", "age", "age2", "metstat",
+fe_vars <- paste(c("year", "wbhao", "educ", "female", "metstat",
                    "married", "ft", "paidhre", "union", "mind03", "mocc03"),
                  collapse = " + ")
 
@@ -51,7 +51,7 @@ regression_formula <- as.formula(paste("lnwage ~", treatment_vars, "|", fe_vars)
 
 ### OUTPUT ####
 model2c <- df_c |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = "hetero"))()
 
 model2c_results <- broom::tidy(model2c) |>
   filter(term == "rtw_status::1") |>
@@ -61,9 +61,9 @@ model2c_results <- broom::tidy(model2c) |>
 ## MODEL 4 (demographic + indiv lmc + state lmc + BEA RPPs) ###
 #########################################################################
 
-treatment_vars <- "i(rtw_status, ref = '0') + urate + lnrpp"
+treatment_vars <- "i(rtw_status, ref = '0') + urate + lnrpp + age + age2"
 
-fe_vars <- paste(c("year", "wbhao", "educ", "female", "age", "age2", "metstat",
+fe_vars <- paste(c("year", "wbhao", "educ", "female", "metstat",
                    "married", "ft", "paidhre", "union", "mind03", "mocc03"),
                  collapse = " + ")
 
@@ -71,7 +71,7 @@ regression_formula <- as.formula(paste("lnwage ~", treatment_vars, "|", fe_vars)
 
 ### OUTPUT ####
 model4c <- df_c |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = "hetero"))()
 
 model4c_results <- broom::tidy(model4c) |>
   filter(term == "rtw_status::1") |>

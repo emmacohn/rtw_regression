@@ -1,6 +1,6 @@
 # ok, future emma (or others). this script is recreating table 2 in gould & kimball 2015
 
-df_a <- df |> filter(year %in% c(2010:2012))
+df_a <- df |> filter(year %in% c(2010:2012), age >= 18 & age <=64)
 
 #############################
 ## MODEL 1 (no controls) ###
@@ -21,7 +21,7 @@ regression_formula <- as.formula(paste(
 
 ### OUTPUT ####
 model1a <- df_a |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = "hetero"))()
 
 model1a_results <- broom::tidy(model1a) |>
   filter(term == "rtw_status::1") |>
@@ -31,9 +31,9 @@ model1a_results <- broom::tidy(model1a) |>
 ## MODEL 2 (demographic + indiv labor market controls) ###
 ##########################################################
 
-treatment_vars <- "i(rtw_status, ref = '0')"
+treatment_vars <- "i(rtw_status, ref = '0') + age + age2"
 
-fe_vars <- paste(c("year", "wbhao", "educ", "female", "age", "age2", "metstat",
+fe_vars <- paste(c("year", "wbhao", "educ", "female", "metstat",
                    "married", "ft", "paidhre", "union", "mind03", "mocc03"),
                  collapse = " + ")
 
@@ -41,7 +41,7 @@ regression_formula <- as.formula(paste("lnwage ~", treatment_vars, "|", fe_vars)
 
 ### OUTPUT ####
 model2a <- df_a |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = "hetero"))()
 
 model2a_results <- broom::tidy(model2a) |>
   filter(term == "rtw_status::1") |>
@@ -51,9 +51,9 @@ model2a_results <- broom::tidy(model2a) |>
 ## MODEL 4 (demographic + indiv lmc + state lmc + BEA RPPs) ###
 #########################################################################
 
-treatment_vars <- "i(rtw_status, ref = '0') + urate + lnrpp"
+treatment_vars <- "i(rtw_status, ref = '0') + urate + lnrpp + age + age2"
 
-fe_vars <- paste(c("year", "wbhao", "educ", "female", "age", "age2", "metstat",
+fe_vars <- paste(c("year", "wbhao", "educ", "female", "metstat",
                    "married", "ft", "paidhre", "union", "mind03", "mocc03"),
                  collapse = " + ")
 
@@ -61,7 +61,7 @@ regression_formula <- as.formula(paste("lnwage ~", treatment_vars, "|", fe_vars)
 
 ### OUTPUT ####
 model4a <- df_a |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = "hetero"))()
 
 model4a_results <- broom::tidy(model4a) |>
   filter(term == "rtw_status::1") |>

@@ -82,7 +82,8 @@ demos_table24 <- map(.x = c("wbhao", "educ"), .f = ~ demos_b_fun(.x)) |>
   rename(rtw = 2, non_rtw = 3)
 
 ###### 2025 ######
-demos_c <- df |> filter(year %in% c(2023:2025), metstat == 0 | metstat == 1)
+### no michigan
+demos_c <- df |> filter(year %in% c(2023:2025), metstat == 0 | metstat == 1, statefips != "MI")
 
 demos_c_fun <- function(x) {
   demos_c |>

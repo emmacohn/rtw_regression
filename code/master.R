@@ -13,13 +13,16 @@ wb <- wb_workbook()
 ### PARAMETERS ####
 # define wage years
 var_list <- c("year", "month", "selfemp", "selfinc", "age", "wage", "female", "wbhao","wbho","educ", "gradeatn", "metstat", "emp",
-                "statefips", "married", "a_earnhour", "a_weekpay", "ftptstat", "union", "mocc03","mind03","paidhre", "hoursu1i", "hoursuorg")
+                "statefips", "married", "a_earnhour", "a_weekpay", "ftptstat", "union", "mocc03","mind03","paidhre", "hoursu1i", "hoursuorg", "pubsec")
 
 rtw_status_year <- read.csv("./input/state_rtw_definitions.csv") |> 
   pivot_longer(cols = -year, names_to = "statefips", values_to = "rtw_status") |> 
-  arrange(statefips, year)
-#gould and kimball keep indiana as a non-rtw state
-rtw_status_year[1330, 3] <- 0
+  arrange(statefips, year) |> 
+  #gould and kimball keep indiana as a non-rtw state
+  mutate(rtw_status = case_when(
+    statefips == "IN" & year == 2012 ~ 0,
+    TRUE ~ rtw_status
+  ))
 
 #bea_rpp_3 replaces 2023 and 2024 data with an average of 2022-2024 data. it uses these averages for 2025 data. 
 bea_rpp <- read.csv("./input/bea_rpp_3.csv") |>
@@ -52,7 +55,7 @@ state_urate <- load_basic(2010:2025, year, age, unemp, statefips, lfstat, basicw
 data <- load_org(2010:2025, all_of(c(var_list, "orgwgt"))) %>% 
   # Age and selfemp restrictions, remove imputed wages
   filter(
-       selfemp == 0, age >= 18 & age <=64,
+       selfemp == 0, age >= 16,
          # remove self-incorporated workers
          #note: not available year < 1989
          case_when(selfinc == 0 & !is.na(selfinc) ~ TRUE,
