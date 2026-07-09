@@ -14,7 +14,7 @@ df_wage <- df |>
               rtw_status == 1 ~ "RTW",
               rtw_status == 2 ~ "switcher"
  ),
-  rpp_wage = realwage25 * (rpp/100)
+  rpp_wage = realwage25 * (100/rpp)
   )
 
 ## unadjusted, 2025 dollars
