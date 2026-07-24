@@ -11,18 +11,16 @@ library(openxlsx2)
 wb <- wb_workbook()
 
 ### PARAMETERS ####
-# define wage years
-var_list <- c("year", "month", "selfemp", "selfinc", "age", "wage", "female", "wbhao","wbho","educ", "gradeatn", "metstat", "emp",
-                "statefips", "married", "a_earnhour", "a_weekpay", "ftptstat", "union", "mocc03","mind03","paidhre", "hoursu1i", "hoursuorg", "pubsec")
+# define variables
+var_list <- c("year", "month", "selfemp", "selfinc", "age", "wage", "female", "wbhao",
+              "wbho","educ", "gradeatn", "metstat", "emp", "statefips", "married", 
+              "a_earnhour", "a_weekpay", "ftptstat", "union", "mocc03","mind03","paidhre", 
+              "hoursu1i", "hoursuorg", "pubsec")
 
+# read in RTW status by year, format for R analysis
 rtw_status_year <- read.csv("./input/state_rtw_definitions.csv") |> 
   pivot_longer(cols = -year, names_to = "statefips", values_to = "rtw_status") |> 
-  arrange(statefips, year) |> 
-  #gould and kimball keep indiana as a non-rtw state
-  mutate(rtw_status = case_when(
-    statefips == "IN" & year == 2012 ~ 0,
-    TRUE ~ rtw_status
-  ))
+  arrange(statefips, year)
 
 #bea_rpp_3 replaces 2023 and 2024 data with an average of 2022-2024 data. it uses these averages for 2025 data. 
 bea_rpp <- read.csv("./input/bea_rpp_3.csv") |>
@@ -33,9 +31,7 @@ bea_rpp <- read.csv("./input/bea_rpp_3.csv") |>
 # pulling in chained CPI-U series
 cpi_data <- realtalk::c_cpi_u_annual
 cpi2014 <- cpi_data$c_cpi_u[cpi_data$year == 2014]
-cpi2024 <- cpi_data$c_cpi_u[cpi_data$year == 2024]
 cpi2025 <- cpi_data$c_cpi_u[cpi_data$year == 2025]
-
 
 ### DATA ####
 ### create state unemp rates
@@ -83,7 +79,6 @@ wage_master <- data %>%
                 2025 ~ orgwgt / 11,
                 .default = orgwgt / 12),
          realwage14 = wage * (cpi2014 /c_cpi_u),
-         realwage24 = wage * (cpi2024 /c_cpi_u),
          realwage25 = wage * (cpi2025 /c_cpi_u),
          ft = ifelse(hoursu1i >= 35 | hoursuorg >= 35 & ftptstat == 2, 1, 0)
         ) |> 
@@ -96,25 +91,35 @@ wage_master <- data %>%
 #note: ungroup and drop invalid data
 df <- ungroup(wage_master) %>% filter(wgt > 0, !is.na(lnwage), !is.na(year))
 
-### REGRESSIONS ####
+### FINAL NUMBERS ####
+## original/benchmark regression
+source("./code/01_old_reg.R")
+
+## final regression
+source("./code/02_final_reg.R")
+
+## regressions by demographics
+source("./code/03_demo_regs.R")
+
 ## table 1
-source("./code/table1.R", echo = TRUE)
+source("./code/04_table1.R")
 
-### table 2 - 2012 data ###
-## original/benchmark
-source("./code/a_old_reg.R", echo = TRUE)
-## omitting switcher states
-source("./code/b_old_noswitch.R", echo = TRUE)
+## other regressions -- NOT NECESSARILY METHODOLOGICALLY CONSISTENT WITH FINAL_REG ##
+## omitting switcher states, 2012 data
+source("./code/other/old_noswitch.R", echo = TRUE)
+## 2012 rtw status, 2025 data
+source("./code/other/new_2012.R", echo = TRUE)
+## omitting switcher states, 2025 data
+source("./code/other/new_noswitch.R", echo = TRUE)
+## 2025 rtw status, no MI, new controls, 2025 data
+source("./code/other/no_mi_2025.R", echo = TRUE)
 
-### table 2 - 2025 data ###
-## 2012 rtw designations
-source("./code/c_new_2012.R", echo = TRUE)
-## omitting switcher states
-source("./code/d_new_noswitch.R", echo = TRUE)
-## 2025 rtw designations
-source("./code/e_new_2025.R", echo = TRUE)
+## other code, you can probably ignore unless specified
+## wages
+source("./code/other/wage_series.R")
+## policy (not using pop-weighted numbers)
+source("./code/other/policy.R")
 
-
+# save workbook to output folder
 wb$
-  # save workbook to output folder
-  save("./output/rtw_reg3.xlsx", overwrite = TRUE)
+  save("./output/rtw_reg_final.xlsx", overwrite = TRUE)

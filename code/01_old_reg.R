@@ -1,13 +1,12 @@
- ## this runs a regression that separates out switchers, including MI 
+# welcome
+# this script is benchmarking models 1, 2, and 4 in gould & kimball 2015
 
-df_f <- df |> filter(year %in% c(2023:2025)) |> 
+df_a <- df |> 
+  filter(year %in% c(2010:2012), age >= 18 & age <=64) |> 
+#gould and kimball keep indiana as a non-rtw state
   mutate(rtw_status = case_when(
-             statefips == "IN" ~ 2,
-             statefips == "WI" ~ 2,
-             statefips == "WV" ~ 2,
-             statefips == "KY" ~ 2,
-             statefips == "MI" ~ 2,
-             TRUE ~ rtw_status
+    statefips == "IN" & year == 2012 ~ 0,
+    TRUE ~ rtw_status
   ))
 
 #############################
@@ -28,10 +27,10 @@ regression_formula <- as.formula(paste(
 ))
 
 ### OUTPUT ####
-model1f <- df_f |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = ~ statefips))()
+model1a <- df_a |>
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
 
-model1f_results <- broom::tidy(model1f) |>
+model1a_results <- broom::tidy(model1a) |>
   filter(term == "rtw_status::1") |>
   mutate(value = exp(estimate) - 1)
 
@@ -41,17 +40,17 @@ model1f_results <- broom::tidy(model1f) |>
 
 treatment_vars <- "i(rtw_status, ref = '0')"
 
-fe_vars <- paste(c("year", "wbhao", "educ", "female", "metstat", "pubsec",
+fe_vars <- paste(c("year", "wbhao", "educ", "female", "metstat", "union",
                    "married", "ft", "paidhre", "mind03", "mocc03", "age", "age2"),
                  collapse = " + ")
 
 regression_formula <- as.formula(paste("lnwage ~", treatment_vars, "|", fe_vars))
 
 ### OUTPUT ####
-model2f <- df_f |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = ~ statefips))()
+model2a <- df_a |>
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
 
-model2f_results <- broom::tidy(model2f) |>
+model2a_results <- broom::tidy(model2a) |>
   filter(term == "rtw_status::1") |>
   mutate(value = exp(estimate) - 1)
 
@@ -61,29 +60,27 @@ model2f_results <- broom::tidy(model2f) |>
 
 treatment_vars <- "i(rtw_status, ref = '0') + urate + lnrpp"
 
-fe_vars <- paste(c("year", "wbhao", "educ", "female", "metstat", "pubsec",
-                   "married", "ft", "paidhre", "mind03", "mocc03", "age", "age2"),
+fe_vars <- paste(c("year", "wbhao", "educ", "female", "metstat", "union", "age", "age2",
+                   "married", "ft", "paidhre", "mind03", "mocc03"),
                  collapse = " + ")
 
 regression_formula <- as.formula(paste("lnwage ~", treatment_vars, "|", fe_vars))
 
-# regression_formula <- as.formula(paste("union ~", treatment_vars, "|", fe_vars))
-
 ### OUTPUT ####
-model4f <- df_f |>
-  (\(d) feols(regression_formula, data = d, weights = ~ wgt, vcov = ~ statefips))()
+model4a <- df_a |>
+  (\(d) feols(regression_formula, data = d, weights = ~ wgt))()
 
-model4f_results <- broom::tidy(model4f) |>
-  filter(term %in% c("rtw_status::1", "rtw_status::2")) |>
+model4a_results <- broom::tidy(model4a) |>
+  filter(term == "rtw_status::1") |>
   mutate(value = exp(estimate) - 1)
 
 wb$
   # add new worksheet
-  add_worksheet(sheet = "new_2025")$
+  add_worksheet(sheet = "benchmark_2012")$
   # add data to worksheet
   add_data(x = "model 1")$
-  add_data(x = model1f_results, start_row = 2)$
+  add_data(x = model1a_results, start_row = 2)$
   add_data(x = "model 2", start_row = 5)$
-  add_data(x = model2f_results, start_row = 6)$
+  add_data(x = model2a_results, start_row = 6)$
   add_data(x = "model 4", start_row = 9)$
-  add_data(x = model4f_results, start_row = 10)
+  add_data(x = model4a_results, start_row = 10)
