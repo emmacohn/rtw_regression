@@ -1,3 +1,7 @@
+# welcome to the Right to Work wage penalty regression project
+# 2026 methodological update by Cohn & Gould
+# updating Gould & Kimball 2015 and Gould & Shierholz 2011
+
 library(realtalk)
 library(epiextractr)
 library(tidyverse)
